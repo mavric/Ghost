@@ -2,7 +2,7 @@ const debug = require('@tryghost/debug')('frontend');
 const path = require('path');
 const express = require('../../shared/express');
 const DomainEvents = require('@tryghost/domain-events');
-const {MemberPageViewEvent} = require('@tryghost/member-events');
+const { MemberPageViewEvent } = require('@tryghost/member-events');
 
 // App requires
 const config = require('../../shared/config');
@@ -16,7 +16,7 @@ const membersService = require('../../server/services/members');
 const offersService = require('../../server/services/offers');
 const customRedirects = require('../../server/services/custom-redirects');
 const linkRedirects = require('../../server/services/link-redirection');
-const {cardAssets, commentCountsAssets, memberAttributionAssets} = require('../services/assets-minification');
+const { cardAssets, commentCountsAssets, memberAttributionAssets } = require('../services/assets-minification');
 const siteRoutes = require('./routes');
 const shared = require('../../server/web/shared');
 const errorHandler = require('@tryghost/mw-error-handler');
@@ -74,6 +74,9 @@ module.exports = function setupSiteApp(routerConfig) {
     // Serve service worker
     siteApp.use(mw.servePublicFile('static', 'sw.js', 'application/javascript', config.get('caching:publicAssets:maxAge')));
 
+    siteApp.use(mw.servePublicFile('static', 'main.js', 'application/javascript', config.get('caching:publicAssets:maxAge')));
+    siteApp.use(mw.servePublicFile('static', 'firebase-messaging-sw.js', 'application/javascript', config.get('caching:publicAssets:maxAge')));
+
     // Serve stylesheets for default templates
     siteApp.use(mw.servePublicFile('static', 'public/ghost.css', 'text/css', config.get('caching:publicAssets:maxAge')));
     siteApp.use(mw.servePublicFile('static', 'public/ghost.min.css', 'text/css', config.get('caching:publicAssets:maxAge')));
@@ -106,14 +109,14 @@ module.exports = function setupSiteApp(routerConfig) {
     // /member/.well-known/* serves files (e.g. jwks.json) so it needs to be mounted before the prettyUrl mw to avoid trailing slashes
     siteApp.use(
         '/members/.well-known',
-        shared.middleware.cacheControl('public', {maxAge: config.get('caching:wellKnown:maxAge')}),
+        shared.middleware.cacheControl('public', { maxAge: config.get('caching:wellKnown:maxAge') }),
         function lazyWellKnownMw(req, res, next) {
             return membersService.api.middleware.wellKnown(req, res, next);
         }
     );
 
     // Recommendations well-known
-    siteApp.use(mw.servePublicFile('built', '.well-known/recommendations.json', 'application/json', config.get('caching:publicAssets:maxAge'), {disableServerCache: true}));
+    siteApp.use(mw.servePublicFile('built', '.well-known/recommendations.json', 'application/json', config.get('caching:publicAssets:maxAge'), { disableServerCache: true }));
 
     // setup middleware for internal apps
     // @TODO: refactor this to be a proper app middleware hook for internal apps
@@ -166,7 +169,7 @@ module.exports = function setupSiteApp(routerConfig) {
     siteApp.use(function memberPageViewMiddleware(req, res, next) {
         if (req.member) {
             // This event needs memberLastSeenAt to avoid doing un-necessary database queries when updating `last_seen_at`
-            DomainEvents.dispatch(MemberPageViewEvent.create({url: req.url, memberId: req.member.id, memberLastSeenAt: req.member.last_seen_at}, new Date()));
+            DomainEvents.dispatch(MemberPageViewEvent.create({ url: req.url, memberId: req.member.id, memberLastSeenAt: req.member.last_seen_at }, new Date()));
         }
         next();
     });

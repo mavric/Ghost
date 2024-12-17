@@ -188,6 +188,7 @@
     "express-query-boolean": "2.0.0",
     "express-queue": "0.0.13",
     "express-session": "1.18.1",
+    "firebase": "^11.0.2",
     "fs-extra": "11.2.0",
     "ghost-storage-base": "1.0.0",
     "glob": "8.1.0",

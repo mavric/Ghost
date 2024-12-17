@@ -2,24 +2,24 @@
 // Usage: `{{ghost_head}}`
 //
 // Outputs scripts and other assets at the top of a Ghost theme
-const {labs, metaData, settingsCache, config, blogIcon, urlUtils, getFrontendKey} = require('../services/proxy');
-const {escapeExpression, SafeString} = require('../services/handlebars');
-const {generateCustomFontCss, isValidCustomFont, isValidCustomHeadingFont} = require('@tryghost/custom-fonts');
+const { labs, metaData, settingsCache, config, blogIcon, urlUtils, getFrontendKey } = require('../services/proxy');
+const { escapeExpression, SafeString } = require('../services/handlebars');
+const { generateCustomFontCss, isValidCustomFont, isValidCustomHeadingFont } = require('@tryghost/custom-fonts');
 // BAD REQUIRE
 // @TODO fix this require
-const {cardAssets} = require('../services/assets-minification');
+const { cardAssets } = require('../services/assets-minification');
 
 const logging = require('@tryghost/logging');
 const _ = require('lodash');
 const debug = require('@tryghost/debug')('ghost_head');
 const templateStyles = require('./tpl/styles');
-const {getFrontendAppConfig, getDataAttributes} = require('../utils/frontend-apps');
+const { getFrontendAppConfig, getDataAttributes } = require('../utils/frontend-apps');
 
 /**
  * @typedef {import('@tryghost/custom-fonts').FontSelection} FontSelection
  */
 
-const {get: getMetaData, getAssetUrl} = metaData;
+const { get: getMetaData, getAssetUrl } = metaData;
 
 function writeMetaTag(property, content, type) {
     type = type || property.substring(0, 7) === 'twitter' ? 'name' : 'property';
@@ -30,19 +30,22 @@ function getPWAMetaTags(dataRoot) {
     const isUserSignedIn = dataRoot.member;
     const isAdmin = _.includes(dataRoot._locals.context, 'admin');
     let pwa = settingsCache.get('pwa')
-    if(_.isEmpty(isUserSignedIn) || isAdmin || !pwa){
-        return []
-    }
+    // if (_.isEmpty(isUserSignedIn) || isAdmin || !pwa) {
+    //     return []
+    // }
     const head = [];
     head.push('<link rel="manifest" href="/manifest.json">');
     head.push('<meta name="theme-color" content="#15171A">');
     head.push('<meta name="apple-mobile-web-app-capable" content="yes">');
     head.push('<meta name="apple-mobile-web-app-status-bar-style" content="black">');
     head.push('<meta name="apple-mobile-web-app-title" content="' + escapeExpression(settingsCache.get('title')) + '">');
+    head.push(`<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>`);
+    head.push(`<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>`);
+    head.push(`<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>`);
     head.push(`<script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/sw.js')
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
                     .then(registration => {
                         console.log('Service Worker registered with scope:', registration.scope);
                     })
@@ -52,6 +55,8 @@ function getPWAMetaTags(dataRoot) {
             });
         }
     </script>`);
+
+    head.push(`<script src="main.js"></script>`)
 
     // Add PWA installation modal script
     head.push(`<script>
@@ -138,14 +143,14 @@ function getMembersHelper(data, frontendKey, excludeList) {
     }
     let membersHelper = '';
     if (!excludeList.has('portal')) {
-        const {scriptUrl} = getFrontendAppConfig('portal');
+        const { scriptUrl } = getFrontendAppConfig('portal');
 
         const colorString = (_.has(data, 'site._preview') && data.site.accent_color) ? data.site.accent_color : '';
         const attributes = {
             i18n: labs.isSet('i18n'),
             ghost: urlUtils.getSiteUrl(),
             key: frontendKey,
-            api: urlUtils.urlFor('api', {type: 'content'}, true),
+            api: urlUtils.urlFor('api', { type: 'content' }, true),
             locale: settingsCache.get('locale') || 'en'
         };
         if (colorString) {
@@ -168,7 +173,7 @@ function getMembersHelper(data, frontendKey, excludeList) {
 
 function getSearchHelper(frontendKey) {
     const adminUrl = urlUtils.getAdminUrl() || urlUtils.getSiteUrl();
-    const {scriptUrl, stylesUrl} = getFrontendAppConfig('sodoSearch');
+    const { scriptUrl, stylesUrl } = getFrontendAppConfig('sodoSearch');
 
     if (!scriptUrl) {
         return '';
@@ -194,7 +199,7 @@ function getAnnouncementBarHelper(data) {
         return '';
     }
 
-    const {scriptUrl} = getFrontendAppConfig('announcementBar');
+    const { scriptUrl } = getFrontendAppConfig('announcementBar');
     const siteUrl = urlUtils.getSiteUrl();
     const announcementUrl = new URL('members/api/announcement/', siteUrl);
     const attrs = {
