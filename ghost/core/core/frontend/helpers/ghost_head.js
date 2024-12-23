@@ -30,9 +30,9 @@ function getPWAMetaTags(dataRoot) {
     const isUserSignedIn = dataRoot.member;
     const isAdmin = _.includes(dataRoot._locals.context, 'admin');
     let pwa = settingsCache.get('pwa')
-    // if (_.isEmpty(isUserSignedIn) || isAdmin || !pwa) {
-    //     return []
-    // }
+    if (_.isEmpty(isUserSignedIn) || isAdmin || !pwa) {
+        return []
+    }
     const head = [];
     head.push('<link rel="manifest" href="/manifest.json">');
     head.push('<meta name="theme-color" content="#15171A">');
@@ -48,6 +48,7 @@ function getPWAMetaTags(dataRoot) {
                 navigator.serviceWorker.register('/firebase-messaging-sw.js')
                     .then(registration => {
                         console.log('Service Worker registered with scope:', registration.scope);
+                         messaging.useServiceWorker(registration);
                     })
                     .catch(error => {
                         console.error('Service Worker registration failed:', error);

@@ -60,12 +60,29 @@ const messaging = firebase.messaging(app)
 //     );
 // });
 
+self.addEventListener("notificationclick", (event) => {
+	event.notification.close();
+	// This looks to see if the current window is already open and
+	// focuses if it is
+	event.waitUntil(
+		clients
+			.matchAll({
+				type: "window",
+			})
+			.then((clientList) => {
+				for (const client of clientList) {
+					if (client.url === "/" && "focus" in client)
+						return client.focus();
+				}
+				if (clients.openWindow) return clients.openWindow("/");
+			})
+	);
+});
 
 messaging.onBackgroundMessage(payload => {
     // Customize notification here
-    // console.log(payload)
+    console.log(payload)
     const { notification } = payload
-    const notificationTitle = 'Background Message Title';
     const notificationOptions = {
         body: notification.body,
         title: notification.title,
