@@ -163,6 +163,7 @@ const Sidebar: React.FC = () => {
                     <NavItem icon='like' keywords={generalSearchKeywords.socialAccounts} navid='social-accounts' title="Social accounts" onClick={handleSectionClick} />
                     <NavItem icon='lock-locked' keywords={generalSearchKeywords.lockSite} navid='locksite' title="Make this site private" onClick={handleSectionClick} />
                     <NavItem icon='user-page' keywords={generalSearchKeywords.users} navid='staff' title="Staff" onClick={handleSectionClick} />
+                    <NavItem icon="textfield" keywords={generalSearchKeywords.logo} navid="logo" title="Website Logo" onClick={handleSectionClick} />
                 </SettingNavSection>
 
                 <SettingNavSection isVisible={checkVisible(Object.values(siteSearchKeywords).flat())} title="Site">
