@@ -11,6 +11,8 @@ const { cardAssets } = require('../services/assets-minification');
 
 const logging = require('@tryghost/logging');
 const _ = require('lodash');
+const path = require('path')
+const fs = require('fs')
 const debug = require('@tryghost/debug')('ghost_head');
 const templateStyles = require('./tpl/styles');
 const { getFrontendAppConfig, getDataAttributes } = require('../utils/frontend-apps');
@@ -33,7 +35,32 @@ function getPWAMetaTags(dataRoot) {
     if (_.isEmpty(isUserSignedIn) || isAdmin || !pwa) {
         return []
     }
+
+    //manifest read
+    // const manifestPath = path.join(__dirname, 'public', 'manifest.json');
+    const manifestPath = path.join(__dirname, '..', 'public', 'manifest.json');
+
+    let manifest = {};
+
+    try {
+        // Read the manifest file
+        const manifestContent = fs.readFileSync(manifestPath, 'utf8');
+        manifest = JSON.parse(manifestContent);
+
+        // Update manifest fields
+        manifest.theme_color = settingsCache.get('theme_color') || '#ffffff';
+        manifest.name = settingsCache.get('title') || 'Default App Title';
+
+        // Write back the updated manifest
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    } catch (err) {
+        console.error('Error reading or updating manifest.json:', err);
+    }
+
+    //
     const head = [];
+    const manifestVersion = Date.now(); // Or any versioning logic
+    // head.push(`<link rel="manifest" href="/manifest.json?v=${manifestVersion}">`);
     head.push('<link rel="manifest" href="/manifest.json">');
     head.push('<meta name="theme-color" content="#15171A">');
     head.push('<meta name="apple-mobile-web-app-capable" content="yes">');
@@ -386,9 +413,9 @@ module.exports = async function ghost_head(options) { // eslint-disable-line cam
         }
         head.push('<meta name="generator" content="Ghost ' +
             escapeExpression(safeVersion) + '">');
-        head.push('<link rel="alternate" type="application/rss+xml" title="' +
-            escapeExpression(meta.site.title) + '" href="' +
-            escapeExpression(meta.rssUrl) + '">');
+        // head.push('<link rel="alternate" type="application/rss+xml" title="' +
+        //     escapeExpression(meta.site.title) + '" href="' +
+        //     escapeExpression(meta.rssUrl) + '">');
         // no code injection for amp context!!!
         if (!_.includes(context, 'amp')) {
             head.push(getMembersHelper(options.data, frontendKey, excludeList)); // controlling for excludes within the function

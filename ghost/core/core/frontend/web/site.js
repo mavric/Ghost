@@ -69,7 +69,10 @@ module.exports = function setupSiteApp(routerConfig) {
     siteApp.use(mw.servePublicFile('static', 'sitemap.xsl', 'text/xsl', config.get('caching:sitemapXSL:maxAge')));
 
     // Serve PWA manifest.json
-    siteApp.use(mw.servePublicFile('static', 'manifest.json', 'application/json', config.get('caching:publicAssets:maxAge')));
+    siteApp.use(mw.servePublicFile('static', 'manifest.json', 'application/json', config.get('caching:publicAssets:maxAge'), {
+        disableServerCache: true, // Add this option if supported
+    })
+    );
 
     // Serve service worker
     siteApp.use(mw.servePublicFile('static', 'sw.js', 'application/javascript', config.get('caching:publicAssets:maxAge')));
