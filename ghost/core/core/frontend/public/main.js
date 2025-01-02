@@ -1,10 +1,10 @@
 const firebaseConfig = {
-    apiKey: "AIzaSyB70ryuwEQKvP6WblIBtFPJmyfpsVB5m5s",
-    authDomain: "pwa-push-abd9f.firebaseapp.com",
-    projectId: "pwa-push-abd9f",
-    storageBucket: "pwa-push-abd9f.firebasestorage.app",
-    messagingSenderId: "1089769545304",
-    appId: "1:1089769545304:web:141ba857650a0dd560742d"
+    apiKey: "AIzaSyBQJy86c4GcjxQTjs9nSXk_EFxi8v-mB0s",
+    authDomain: "ghost-testing-6e295.firebaseapp.com",
+    projectId: "ghost-testing-6e295",
+    storageBucket: "ghost-testing-6e295.firebasestorage.app",
+    messagingSenderId: "933331723568",
+    appId: "1:933331723568:web:73f6b62c7a8098835ad4f5"
 };
 
 // Initialize Firebase
@@ -27,7 +27,7 @@ function requestNotificationPermission() {
 // Get token and store it in Firestore
 function getTokenAndStore() {
     messaging.getToken({
-        vapidKey: 'BNCwrDIfcFmC6voRrv88m3pA99Qo42Q1i-DX_HxRBmLnoE64vJingC0itdsmZQ5JOPyv14Lghx7cv42OxqyGMLA'
+        vapidKey: 'BBRsN1JYXXucQcB06F3rDcItC8t0jIQLVQbHldFnctQzShY3Yl8IQS0jeovxWIf3Nkn9xJ8cVkbS5XQJAmJXCS0'
     }).then((currentToken) => {
         if (currentToken) {
             console.log('Token retrieved: ', currentToken);
