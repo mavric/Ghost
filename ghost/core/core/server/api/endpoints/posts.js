@@ -1,6 +1,9 @@
 const urlUtils = require('../../../shared/url-utils');
 const models = require('../../models');
 const getPostServiceInstance = require('../../services/posts/posts-service');
+const FirebaseClient  = require('@tryghost/firebase-client')
+const configService = require('../../../shared/config/env/config.development.json');
+
 const allowedIncludes = [
     'tags',
     'authors',
@@ -299,6 +302,11 @@ const controller = {
             unsafeAttrs: unsafeAttrs
         },
         query(frame) {
+            console.log('firebaseClient: ', FirebaseClient);
+            const firebase = new FirebaseClient({
+                config: configService
+            })
+            console.log('firebase: ***** ', firebase);
             return models.Post.destroy({...frame.options, require: true});
         }
     },

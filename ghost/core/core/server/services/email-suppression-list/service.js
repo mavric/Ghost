@@ -4,6 +4,7 @@ const configService = require('../../../shared/config');
 const settingsCache = require('../../../shared/settings-cache');
 const MailgunEmailSuppressionList = require('./MailgunEmailSuppressionList');
 
+console.log('MailgunClient: ', MailgunClient);
 const mailgunClient = new MailgunClient({
     config: configService,
     settings: settingsCache

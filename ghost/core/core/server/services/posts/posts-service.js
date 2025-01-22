@@ -1,6 +1,8 @@
 const {PostsService, PostsExporter} = require('@tryghost/posts-service');
+const FirebaseClient = require('@tryghost/firebase-client')
 const url = require('../../../server/api/endpoints/utils/serializers/output/utils/url');
 
+console.log('FirebaseClient: ', FirebaseClient);
 /**
  * @returns {InstanceType<PostsService>} instance of the PostsService
  */

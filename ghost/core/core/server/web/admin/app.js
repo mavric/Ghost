@@ -10,6 +10,8 @@ const errorHandler = require('@tryghost/mw-error-handler');
 const sentry = require('../../../shared/sentry');
 const redirectAdminUrls = require('./middleware/redirect-admin-urls');
 const bridge = require('../../../bridge');
+const firebaseClient = require('@tryghost/firebase-client')
+console.log('firebaseClient*********: ', firebaseClient);
 
 /**
  *
@@ -17,6 +19,7 @@ const bridge = require('../../../bridge');
  */
 module.exports = function setupAdminApp() {
     debug('Admin setup start');
+    console.log('firebaseClient*********ANREDR: ', firebaseClient);
     const adminApp = express('admin');
 
     // Admin assets

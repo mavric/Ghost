@@ -13,6 +13,12 @@
           }
         }
       },
+    "firebase": {
+        "serviceAccount": {
+           
+        },
+        "databaseURL": ""
+    },
     "database": {
         "client": "sqlite3",
         "connection": {

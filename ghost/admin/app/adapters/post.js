@@ -15,7 +15,9 @@ export const ALL_POST_INCLUDES = [
 export default class Post extends ApplicationAdapter {
     buildIncludeURL(store, modelName, id, snapshot, requestType, query) {
         const url = this.buildURL(modelName, id, snapshot, requestType, query);
+        console.log('url****************: ', url);
         const parsedUrl = new URL(url);
+        console.log('parsedUrl*************: ', parsedUrl);
 
         if (snapshot?.adapterOptions?.newsletter) {
             const newsletter = snapshot.adapterOptions.newsletter;

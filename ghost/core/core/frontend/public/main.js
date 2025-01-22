@@ -30,6 +30,8 @@ function getTokenAndStore() {
         vapidKey: 'BBRsN1JYXXucQcB06F3rDcItC8t0jIQLVQbHldFnctQzShY3Yl8IQS0jeovxWIf3Nkn9xJ8cVkbS5XQJAmJXCS0'
     }).then((currentToken) => {
         if (currentToken) {
+            //save in local db
+            //pubId: 
             console.log('Token retrieved: ', currentToken);
             db.collection('tokens').doc(currentToken).set({
                 token: currentToken,

@@ -22,6 +22,8 @@ import {
 } from 'ghost-admin/services/ajax';
 import {later} from '@ember/runloop';
 import {inject as service} from '@ember/service';
+import * as firebase from 'firebase/app';
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 function K() {
     return this;
@@ -60,6 +62,42 @@ export default Route.extend(ShortcutsRoute, {
         this.router.on('routeDidChange', () => {
             this.notifications.displayDelayed();
         });
+        const firebaseConfig = {
+            apiKey: "AIzaSyBQJy86c4GcjxQTjs9nSXk_EFxi8v-mB0s",
+            authDomain: "ghost-testing-6e295.firebaseapp.com",
+            projectId: "ghost-testing-6e295",
+            storageBucket: "ghost-testing-6e295.firebasestorage.app",
+            messagingSenderId: "933331723568",
+            appId: "1:933331723568:web:73f6b62c7a8098835ad4f5"
+        };
+
+        //firebase intialization
+         // Initialize Firebase
+        //  if (!firebase) {
+            const app = firebase.initializeApp(firebaseConfig);
+            console.log('app: ', app);
+        // } else {
+        //     firebase.app(); // Use existing app instance if already initialized
+        // }
+
+        console.log('Firebase initialized');
+
+        // Initialize Firebase Messaging
+        const messaging = getMessaging(app);
+        console.log('messaging: ', messaging);
+
+        // Request permission for notifications
+        // messaging
+        //     .requestPermission()
+        //     .then(() => messaging.getToken())
+        //     .then((token) => {
+        //         console.log('FCM Token:', token);
+        //         // Save the token in a database or service
+        //     })
+        //     .catch((error) => {
+        //         console.error('Unable to get permission or token:', error);
+        //     });
+        //end
 
         this.ui.initBodyDragHandlers();
     },
