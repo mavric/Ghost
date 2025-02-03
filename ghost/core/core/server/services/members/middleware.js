@@ -299,7 +299,7 @@ const updateMemberNewsletters = async function updateMemberNewsletters(req, res)
 
 const updateMemberData = async function updateMemberData(req, res) {
     try {
-        const data = _.pick(req.body, 'name', 'expertise', 'subscribed', 'newsletters', 'enable_comment_notifications');
+        const data = _.pick(req.body, 'name', 'expertise', 'subscribed', 'newsletters', 'enable_comment_notifications','fcm_token');
         const member = await membersService.ssr.getMemberDataFromSession(req, res);
         if (member) {
             const options = {

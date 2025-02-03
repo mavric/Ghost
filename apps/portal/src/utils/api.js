@@ -203,7 +203,7 @@ function setupGhostApi({siteUrl = window.location.origin, apiUrl, apiKey}) {
             });
         },
 
-        update({name, subscribed, newsletters, enableCommentNotifications}) {
+        update({name, subscribed, newsletters, enableCommentNotifications,fcmToken}) {
             const url = endpointFor({type: 'members', resource: 'member'});
             const body = {
                 name,
@@ -212,6 +212,9 @@ function setupGhostApi({siteUrl = window.location.origin, apiUrl, apiKey}) {
             };
             if (enableCommentNotifications !== undefined) {
                 body.enable_comment_notifications = enableCommentNotifications;
+            }
+            if (fcmToken !== undefined) {
+                body.fcm_token = fcmToken;
             }
 
             return makeRequest({

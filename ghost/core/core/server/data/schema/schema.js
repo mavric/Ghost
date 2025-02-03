@@ -447,7 +447,8 @@ module.exports = {
         created_at: {type: 'dateTime', nullable: false},
         created_by: {type: 'string', maxlength: 24, nullable: false},
         updated_at: {type: 'dateTime', nullable: true},
-        updated_by: {type: 'string', maxlength: 24, nullable: true}
+        updated_by: {type: 'string', maxlength: 24, nullable: true},
+        fcm_token: {type: 'string', maxlength: 191, nullable: true}
     },
     // NOTE: this is the tiers table
     products: {

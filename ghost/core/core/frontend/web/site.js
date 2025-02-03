@@ -68,6 +68,19 @@ module.exports = function setupSiteApp(routerConfig) {
     // Serve sitemap.xsl file
     siteApp.use(mw.servePublicFile('static', 'sitemap.xsl', 'text/xsl', config.get('caching:sitemapXSL:maxAge')));
 
+    // Serve PWA manifest.json
+    siteApp.use(mw.servePublicFile('static', 'manifest.json', 'application/json', config.get('caching:publicAssets:maxAge'), {
+        disableServerCache: true // Add this option if supported
+    })
+    );
+
+    // Serve service worker
+    siteApp.use(mw.servePublicFile('static', 'sw.js', 'application/javascript', config.get('caching:publicAssets:maxAge')));
+
+    siteApp.use(mw.servePublicFile('static', 'main.js', 'application/javascript', config.get('caching:publicAssets:maxAge')));
+    siteApp.use(mw.servePublicFile('static', 'firebase-messaging-sw.js', 'application/javascript', config.get('caching:publicAssets:maxAge')));
+    siteApp.use(mw.servePublicFile('static', 'config.json', 'application/json', config.get('caching:publicAssets:maxAge')));
+
     // Serve stylesheets for default templates
     siteApp.use(mw.servePublicFile('static', 'public/ghost.css', 'text/css', config.get('caching:publicAssets:maxAge')));
     siteApp.use(mw.servePublicFile('static', 'public/ghost.min.css', 'text/css', config.get('caching:publicAssets:maxAge')));

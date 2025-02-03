@@ -386,18 +386,16 @@ async function updateMemberEmail({data, state, api}) {
 }
 
 async function updateMemberData({data, state, api}) {
-    const {name} = data;
     const originalName = getMemberName({member: state.member});
-    if (originalName !== name) {
+    const memberId = state.member.id;
+    let updatedMember = null;
+
+    if (data?.name && originalName !== data.name) {
         try {
-            const member = await api.member.update({name});
-            if (!member) {
-                throw new Error('Failed to update member');
+            updatedMember = await api.member.update({id: memberId, name: data.name});
+            if (!updatedMember) {
+                throw new Error('Failed to update member name');
             }
-            return {
-                member,
-                success: true
-            };
         } catch (err) {
             return {
                 success: false,
@@ -405,6 +403,28 @@ async function updateMemberData({data, state, api}) {
             };
         }
     }
+
+    if (data?.fcmToken) {
+        try {
+            updatedMember = await api.member.update({fcmToken: data.fcmToken});
+            if (!updatedMember) {
+                throw new Error('Failed to update member FCM token');
+            }
+        } catch (err) {
+            return {
+                success: false,
+                error: err
+            };
+        }
+    }
+
+    if (updatedMember) {
+        return {
+            member: updatedMember,
+            success: true
+        };
+    }
+
     return null;
 }
 

@@ -451,7 +451,8 @@ module.exports = class MemberRepository {
             'last_commented_at',
             'expertise',
             'email_disabled',
-            'transient_id'
+            'transient_id',
+            'fcm_token'
         ]);
 
         // Trim whitespaces from expertise
