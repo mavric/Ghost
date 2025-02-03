@@ -163,6 +163,7 @@ const Sidebar: React.FC = () => {
                     <NavItem icon='like' keywords={generalSearchKeywords.socialAccounts} navid='social-accounts' title="Social accounts" onClick={handleSectionClick} />
                     <NavItem icon='lock-locked' keywords={generalSearchKeywords.lockSite} navid='locksite' title="Make this site private" onClick={handleSectionClick} />
                     <NavItem icon='user-page' keywords={generalSearchKeywords.users} navid='staff' title="Staff" onClick={handleSectionClick} />
+                    <NavItem icon="textfield" keywords={generalSearchKeywords.logo} navid="logo" title="Website Logo" onClick={handleSectionClick} />
                 </SettingNavSection>
 
                 <SettingNavSection isVisible={checkVisible(Object.values(siteSearchKeywords).flat())} title="Site">
@@ -170,6 +171,7 @@ const Sidebar: React.FC = () => {
                     <NavItem icon='layout-2-col' keywords={siteSearchKeywords.theme} navid='theme' title="Theme" onClick={handleSectionClick} />
                     <NavItem icon='navigation' keywords={siteSearchKeywords.navigation} navid='navigation' title="Navigation" onClick={handleSectionClick} />
                     <NavItem icon='megaphone' keywords={siteSearchKeywords.announcementBar} navid='announcement-bar' title="Announcement bar" onClick={handleSectionClick} />
+                    <NavItem icon="download" keywords={siteSearchKeywords.pwa} navid="pwa" title="Progressive web app" onClick={handleSectionClick} />
                 </SettingNavSection>
 
                 <SettingNavSection isVisible={checkVisible(Object.values(membershipSearchKeywords).flat())} title="Membership">

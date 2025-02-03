@@ -183,6 +183,7 @@ function createApiInstance(config) {
                 }
             },
             getHTML(url, type, email) {
+                console.log('url: ', url);
                 const siteTitle = settingsCache.get('title');
                 const siteUrl = urlUtils.urlFor('home', true);
                 const domain = urlUtils.urlFor('home', true).match(new RegExp('^https?://([^/:?#]+)(?:[/:?#]|$)', 'i'));

@@ -48,17 +48,18 @@ export default class FeatureService extends Service {
 
     @inject config;
 
-    // features
     @feature('emailAnalytics') emailAnalytics;
 
-    // user-specific flags
     @feature('nightShift', {user: true, onChange: '_setAdminTheme'})
-        nightShift;
+    nightShift;
+    @feature('pwa', {user: true ,onChange:'_setPwa'})
+        pwa;
 
-    // user-specific referral invitation
     @feature('referralInviteDismissed', {user: true}) referralInviteDismissed;
 
     // labs flags
+    @feature('urlCache') urlCache;
+    @feature('lexicalMultiplayer') lexicalMultiplayer;
     @feature('audienceFeedback') audienceFeedback;
     @feature('webmentions') webmentions;
     @feature('stripeAutomaticTax') stripeAutomaticTax;
@@ -113,7 +114,6 @@ export default class FeatureService extends Service {
         let model = this.get(options.user ? '_user' : 'settings');
         let featureObject = this.get(serviceProperty);
 
-        // set the new key value for either the labs property or the accessibility property
         set(featureObject, key, value);
 
         if (options.requires && value === true) {
@@ -122,19 +122,15 @@ export default class FeatureService extends Service {
             });
         }
 
-        // update the 'labs' or 'accessibility' key of the model
         model.set(serviceProperty, JSON.stringify(featureObject));
 
         return model.save().then(() => {
-            // return the labs key value that we get from the server
             this.notifyPropertyChange(serviceProperty);
             return this.get(`${serviceProperty}.${key}`);
         }).catch((error) => {
             model.rollbackAttributes();
             this.notifyPropertyChange(serviceProperty);
 
-            // we'll always have an errors object unless we hit a
-            // validation error
             if (!error) {
                 throw new EmberError(`Validation of the feature service ${options.user ? 'user' : 'settings'} model failed when updating ${serviceProperty}.`);
             }
@@ -158,5 +154,9 @@ export default class FeatureService extends Service {
             //TODO: Also disable toggle from settings and Labs hover
             $('link[title=dark]').prop('disabled', true);
         });
+    }
+
+    _setPwa(enabled) {
+        console.log(`PWA is now ${enabled ? 'enabled' : 'disabled'}`);
     }
 }

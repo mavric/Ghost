@@ -20,6 +20,8 @@ import {capitalizeFirstLetter} from '../helpers/capitalize-first-letter';
 import {dropTask, enqueueTask, restartableTask, task, taskGroup, timeout} from 'ember-concurrency';
 import {htmlSafe} from '@ember/template';
 import {inject} from 'ghost-admin/decorators/inject';
+
+// import {sendNotificationToUser} from 'ghost/core/core/server/firebase-admin-setup'
 import {isBlank} from '@ember/utils';
 import {isArray as isEmberArray} from '@ember/array';
 import {isHostLimitError, isServerUnreachableError, isVersionMismatchError} from 'ghost-admin/services/ajax';
@@ -30,6 +32,9 @@ import {inject as service} from '@ember/service';
 import {slugify} from '@tryghost/string';
 import {tracked} from '@glimmer/tracking';
 
+// import {sendNotificationToUsers} from '../helpers/sendNotifications'
+
+// console.log('sendNotificationToUser: ', sendNotificationToUser);
 const DEFAULT_TITLE = '(Untitled)';
 // suffix that is applied to the title of a post when it has been duplicated
 const DUPLICATED_POST_TITLE_SUFFIX = '(Copy)';
@@ -160,6 +165,7 @@ export default class LexicalEditorController extends Controller {
     @service settings;
     @service ui;
     @service localRevisions;
+    // @service sendNotifications;
 
     @inject config;
 
@@ -203,7 +209,7 @@ export default class LexicalEditorController extends Controller {
         const {stateName, isDeleted, isDirty, isEmpty, isLoading, isLoaded, isNew, isSaving, isValid} = post.currentState;
         if (stateName) {
             const postState = [stateName, {isDeleted, isDirty, isEmpty, isLoading, isLoaded, isNew, isSaving, isValid}];
-            console.log('post state changed:', ...postState); // eslint-disable-line no-console
+            console.log('post state changed ********:', ...postState); // eslint-disable-line no-console
             this._postStates.push(postState);
         }
     }
@@ -306,9 +312,16 @@ export default class LexicalEditorController extends Controller {
         const excerptTk = (this.feature.editorExcerpt && this.excerptHasTk) ? 1 : 0;
         return titleTk + excerptTk + this.postTkCount + this.featureImageTkCount;
     }
+    @action
+    updateKroBody(lexical) {
+        console.log("NOT HEELOhello Jee", lexical)
+        this.notifications.showNotification("Hello Test Notification", {})
+        // sendNotificationToUser([], {body: "hello", title: "Hello JEE"})
+    }
 
     @action
     updateScratch(lexical) {
+        console.log('lexical: ', lexical);
         const lexicalString = JSON.stringify(lexical);
         this.set('post.lexicalScratch', lexicalString);
         try {
@@ -588,6 +601,16 @@ export default class LexicalEditorController extends Controller {
     // _xSave tasks  that will also cancel the autosave task
     @task({group: 'saveTasks'})
     *saveTask(options = {}) {
+        console.log('options: ---Wrong ***');
+        // yield sendNotificationToUsers({
+        //     title: 'Post Saved Successfully!',
+        //     body: `The post has been saved.`,
+        // });
+        // this.sendNotifications.sendNotification({
+        //     title: 'Hello',
+        //     body: 'Notification body here',
+        // });
+        // this.notifications.sendNotificationToUser({title: "sadasd", body: "dasdsas", tokens: ['eikvnI7Xv4v6XXCmIgib2p:APA91bGlSuQ423eddh16U_CbtWRvnN9uhIEqaxTZW-11JvGamnDAGZFTKmPB91JfD8p3x0gquZAdKfUfIwK5SGF6GmDuUrwP-nN2CkqlaVRLQnmG-aI4vi4']});
         if (this.post.isDestroyed || this.post.isDestroying) {
             return;
         }
@@ -826,6 +849,7 @@ export default class LexicalEditorController extends Controller {
     // detection errors
     @task({group: 'saveTasks'})
     *savePostTask() {
+        console.log("idr save ho rha")
         try {
             return yield this._savePostTask.perform();
         } catch (error) {

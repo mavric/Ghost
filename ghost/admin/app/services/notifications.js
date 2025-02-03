@@ -1,3 +1,4 @@
+
 import * as Sentry from '@sentry/ember';
 import Service, {inject as service} from '@ember/service';
 import {TrackedArray} from 'tracked-built-ins';
@@ -11,6 +12,42 @@ import {
     isVersionMismatchError
 } from 'ghost-admin/services/ajax';
 import {tracked} from '@glimmer/tracking';
+import  * as firebase from 'firebase/app';
+import { getMessaging } from "firebase/messaging";;
+
+// import admin from 'firebase-admin'
+// console.log('admin: ', admin);
+// import serviceAccount from "../../app/firebase-config.json";
+// console.log('serviceAccount: ', serviceAccount);
+
+const serviceAccount = {
+      
+}
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// });
+
+
+
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount)
+// });
+const firebaseConfig = {
+  
+};
+
+
+// // Initialize Firebase
+const app = firebase.initializeApp(firebaseConfig);
+console.log('app: ', app);
+
+// Initialize Firebase Cloud Messaging and get a reference to the service
+// const messaging = getMessaging(app);
+// const messaging = admin.messaging();
+
+// console.log('messaging: ', messaging);
+
 
 // Notification keys take the form of "noun.verb.message", eg:
 //
@@ -95,7 +132,31 @@ export default class NotificationsService extends Service {
             this.delayedNotifications.push(message);
         }
     }
-
+    async sendNotificationToUser({ title, body, tokens }) {
+        // const payload = {
+        //     notification: {
+        //       title,
+        //       body,
+        //     },
+        //   };
+        //fetch all token based on pubID
+        //   try {
+        //     const message = {
+        //         token: tokens[0],
+        //         notification: {
+        //           title: title,
+        //           body: body,
+        //         },
+        //         data: data || {}, // Optional data payload
+        //     }
+            // Send notification to the provided tokens
+            // const response = await messaging.send(message);
+            console.log("Notifications sent successfully:");
+        //   } catch (error) {
+        //     console.error("Error sending notification:", error);
+        //   }
+        
+    }
     showAlert(message, options = {}) {
         options = options || {};
 

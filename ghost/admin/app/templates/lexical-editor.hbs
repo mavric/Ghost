@@ -1,4 +1,5 @@
 {{#if this.post}}
+{{log "asdsad" this.post}}
     <div class="flex flex-row">
         <GhEditor
             @tagName="section"
@@ -30,7 +31,7 @@
                             {{/if}}
                         {{/if}}
                         {{#if (or (not this.ui.isFullScreen) (not this.fromAnalytics) this.post.didEmailFail) }}
-                            <div class="gh-editor-post-status">
+                            <div style="background-color: brown;" class="gh-editor-post-status">
                                 <span>
                                     <GhEditorPostStatus
                                         @post={{this.post}}
@@ -59,6 +60,7 @@
                 gh-koenig-editor acts as a wrapper around the title input and
                 koenig editor canvas to support Ghost-specific editor behaviour
             --}}
+            {{!-- Editor --}}
             <GhKoenigEditorLexical
                 @title={{readonly this.post.titleScratch}}
                 @titlePlaceholder={{concat (capitalize this.post.displayName) " title"}}
@@ -73,7 +75,7 @@
                 @excerptErrorMessage={{this.excerptErrorMessage}}
                 @body={{readonly this.post.lexicalScratch}}
                 @bodyPlaceholder={{concat "Begin writing your " this.post.displayName "..."}}
-                @onBodyChange={{this.updateScratch}}
+                @onBodyChange={{this.updateKroBody}}
                 @updateSecondaryInstanceModel={{this.updateSecondaryInstanceModel}}
                 @headerOffset={{editor.headerHeight}}
                 @scrollContainerSelector=".gh-koenig-editor"

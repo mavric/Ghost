@@ -21,6 +21,8 @@ const {BadRequestError} = require('@tryghost/errors');
 const {PostRevisions} = require('@tryghost/post-revisions');
 const {mobiledocToLexical} = require('@tryghost/kg-converters');
 const labs = require('../../shared/labs');
+const FirebaseClient = require('@tryghost/firebase-client')
+console.log('FirebaseClient ---BHR: ', FirebaseClient);
 
 const messages = {
     isAlreadyPublished: 'Your post is already published, please reload your page.',
@@ -1408,6 +1410,7 @@ Post = ghostBookshelf.Model.extend({
      * **See:** [ghostBookshelf.Model.add](base.js.html#add)
      */
     add: function add(data, unfilteredOptions) {
+        console.log('add -----: ', data);
         let options = this.filterOptions(unfilteredOptions, 'add', {extraAllowedProperties: ['id']});
 
         const addPost = (() => {
@@ -1432,6 +1435,9 @@ Post = ghostBookshelf.Model.extend({
     },
 
     destroy: function destroy(unfilteredOptions) {
+        console.log('unfilteredOptions -----: ', unfilteredOptions);
+        console.log('FirebaseClient ---YUPPP: ', FirebaseClient);
+
         let options = this.filterOptions(unfilteredOptions, 'destroy', {extraAllowedProperties: ['id']});
 
         const destroyPost = () => {

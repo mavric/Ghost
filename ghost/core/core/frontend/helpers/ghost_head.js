@@ -2,28 +2,144 @@
 // Usage: `{{ghost_head}}`
 //
 // Outputs scripts and other assets at the top of a Ghost theme
-const {labs, metaData, settingsCache, config, blogIcon, urlUtils, getFrontendKey} = require('../services/proxy');
-const {escapeExpression, SafeString} = require('../services/handlebars');
-const {generateCustomFontCss, isValidCustomFont, isValidCustomHeadingFont} = require('@tryghost/custom-fonts');
+const { labs, metaData, settingsCache, config, blogIcon, urlUtils, getFrontendKey } = require('../services/proxy');
+const { escapeExpression, SafeString } = require('../services/handlebars');
+const { generateCustomFontCss, isValidCustomFont, isValidCustomHeadingFont } = require('@tryghost/custom-fonts');
 // BAD REQUIRE
 // @TODO fix this require
-const {cardAssets} = require('../services/assets-minification');
+const { cardAssets } = require('../services/assets-minification');
 
 const logging = require('@tryghost/logging');
 const _ = require('lodash');
+const path = require('path')
+const fs = require('fs')
 const debug = require('@tryghost/debug')('ghost_head');
 const templateStyles = require('./tpl/styles');
-const {getFrontendAppConfig, getDataAttributes} = require('../utils/frontend-apps');
+const { getFrontendAppConfig, getDataAttributes } = require('../utils/frontend-apps');
 
 /**
  * @typedef {import('@tryghost/custom-fonts').FontSelection} FontSelection
  */
 
-const {get: getMetaData, getAssetUrl} = metaData;
+const { get: getMetaData, getAssetUrl } = metaData;
 
 function writeMetaTag(property, content, type) {
     type = type || property.substring(0, 7) === 'twitter' ? 'name' : 'property';
     return '<meta ' + type + '="' + property + '" content="' + content + '">';
+}
+
+function getPWAMetaTags(dataRoot) {
+    const isUserSignedIn = dataRoot.member;
+    const isAdmin = _.includes(dataRoot._locals.context, 'admin');
+    let pwa = settingsCache.get('pwa')
+    // if (_.isEmpty(isUserSignedIn) || isAdmin || !pwa) {
+    //     return []
+    // }
+
+    //manifest read
+    // const manifestPath = path.join(__dirname, 'public', 'manifest.json');
+    const manifestPath = path.join(__dirname, '..', 'public', 'manifest.json');
+
+    let manifest = {};
+
+    try {
+        // Read the manifest file
+        const manifestContent = fs.readFileSync(manifestPath, 'utf8');
+        manifest = JSON.parse(manifestContent);
+
+        // Update manifest fields
+        manifest.theme_color = settingsCache.get('theme_color') || '#ffffff';
+        manifest.name = settingsCache.get('title') || 'Default App Title';
+
+        // Write back the updated manifest
+        fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2));
+    } catch (err) {
+        console.error('Error reading or updating manifest.json:', err);
+    }
+
+    //
+    const head = [];
+    const manifestVersion = Date.now(); // Or any versioning logic
+    // head.push(`<link rel="manifest" href="/manifest.json?v=${manifestVersion}">`);
+    head.push('<link rel="manifest" href="/manifest.json">');
+    head.push('<meta name="theme-color" content="#15171A">');
+    head.push('<meta name="apple-mobile-web-app-capable" content="yes">');
+    head.push('<meta name="apple-mobile-web-app-status-bar-style" content="black">');
+    head.push('<meta name="apple-mobile-web-app-title" content="' + escapeExpression(settingsCache.get('title')) + '">');
+    head.push(`<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>`);
+    head.push(`<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js"></script>`);
+    head.push(`<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>`);
+    head.push(`<script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then(registration => {
+                        console.log('Service Worker registered with scope:', registration.scope);
+                         messaging.useServiceWorker(registration);
+                    })
+                    .catch(error => {
+                        console.error('Service Worker registration failed:', error);
+                    });
+            });
+        }
+    </script>`);
+
+    head.push(`<script src="main.js"></script>`)
+
+    // Add PWA installation modal script //uncomment this
+    // head.push(`<script>
+    //     document.addEventListener("DOMContentLoaded", function() {
+    //         // Create modal container
+    //         const modal = document.createElement("div");
+    //         modal.id = "pwa-modal";
+    //         modal.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;";
+
+    //         // Modal content
+    //         const modalContent = document.createElement("div");
+    //         modalContent.style.cssText = "background: white; padding: 20px; border-radius: 10px; text-align: center; width: 300px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);";
+    //         modalContent.innerHTML = \`
+    //             <h2>Install PWA</h2>
+    //             <p>Would you like to install this app as a PWA?</p>
+    //             <button id="install-pwa" style="margin: 10px; padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Install</button>
+    //             <button id="cancel-modal" style="margin: 10px; padding: 10px 20px; background: #CCCCCC; color: black; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+    //         \`;
+
+    //         // Append modal content to modal
+    //         modal.appendChild(modalContent);
+    //         document.body.appendChild(modal);
+
+    //         // Install PWA logic
+    //         let deferredPrompt;
+    //         window.addEventListener("beforeinstallprompt", (e) => {
+    //             // Prevent the mini-infobar from appearing
+    //             e.preventDefault();
+    //             deferredPrompt = e;
+    //         });
+
+    //         const installButton = document.getElementById("install-pwa");
+    //         installButton.addEventListener("click", function() {
+    //             if (deferredPrompt) {
+    //                 deferredPrompt.prompt();
+    //                 deferredPrompt.userChoice.then((choiceResult) => {
+    //                     if (choiceResult.outcome === "accepted") {
+    //                         console.log("PWA installed");
+    //                     } else {
+    //                         console.log("PWA installation dismissed");
+    //                     }
+    //                     deferredPrompt = null;
+    //                 });
+    //             }
+    //             modal.style.display = "none";
+    //         });
+
+    //         // Cancel modal
+    //         const cancelButton = document.getElementById("cancel-modal");
+    //         cancelButton.addEventListener("click", function() {
+    //             modal.style.display = "none";
+    //         });
+    //     });
+    // </script>`);
+    return head;
 }
 
 function finaliseStructuredData(meta) {
@@ -55,14 +171,14 @@ function getMembersHelper(data, frontendKey, excludeList) {
     }
     let membersHelper = '';
     if (!excludeList.has('portal')) {
-        const {scriptUrl} = getFrontendAppConfig('portal');
+        const { scriptUrl } = getFrontendAppConfig('portal');
 
         const colorString = (_.has(data, 'site._preview') && data.site.accent_color) ? data.site.accent_color : '';
         const attributes = {
             i18n: labs.isSet('i18n'),
             ghost: urlUtils.getSiteUrl(),
             key: frontendKey,
-            api: urlUtils.urlFor('api', {type: 'content'}, true),
+            api: urlUtils.urlFor('api', { type: 'content' }, true),
             locale: settingsCache.get('locale') || 'en'
         };
         if (colorString) {
@@ -85,7 +201,7 @@ function getMembersHelper(data, frontendKey, excludeList) {
 
 function getSearchHelper(frontendKey) {
     const adminUrl = urlUtils.getAdminUrl() || urlUtils.getSiteUrl();
-    const {scriptUrl, stylesUrl} = getFrontendAppConfig('sodoSearch');
+    const { scriptUrl, stylesUrl } = getFrontendAppConfig('sodoSearch');
 
     if (!scriptUrl) {
         return '';
@@ -111,7 +227,7 @@ function getAnnouncementBarHelper(data) {
         return '';
     }
 
-    const {scriptUrl} = getFrontendAppConfig('announcementBar');
+    const { scriptUrl } = getFrontendAppConfig('announcementBar');
     const siteUrl = urlUtils.getSiteUrl();
     const announcementUrl = new URL('members/api/announcement/', siteUrl);
     const attrs = {
@@ -261,6 +377,14 @@ module.exports = async function ghost_head(options) { // eslint-disable-line cam
                     head.push(writeMetaTag('referrer', referrerPolicy, 'name'));
                 }
             }
+
+            // Add PWA meta tags
+            if (!excludeList.has('pwa')) {
+                head.push.apply(head, getPWAMetaTags(dataRoot));
+                //head.push(...getPWAMetaTags(dataRoot));
+
+            }
+
             // show amp link in post when 1. we are not on the amp page and 2. amp is enabled
             if (_.includes(context, 'post') && !_.includes(context, 'amp') && settingsCache.get('amp')) {
                 head.push('<link rel="amphtml" href="' +
@@ -293,9 +417,9 @@ module.exports = async function ghost_head(options) { // eslint-disable-line cam
         }
         head.push('<meta name="generator" content="Ghost ' +
             escapeExpression(safeVersion) + '">');
-        head.push('<link rel="alternate" type="application/rss+xml" title="' +
-            escapeExpression(meta.site.title) + '" href="' +
-            escapeExpression(meta.rssUrl) + '">');
+        // head.push('<link rel="alternate" type="application/rss+xml" title="' +
+        //     escapeExpression(meta.site.title) + '" href="' +
+        //     escapeExpression(meta.rssUrl) + '">');
         // no code injection for amp context!!!
         if (!_.includes(context, 'amp')) {
             head.push(getMembersHelper(options.data, frontendKey, excludeList)); // controlling for excludes within the function

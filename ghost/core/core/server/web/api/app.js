@@ -10,6 +10,7 @@ const APIVersionCompatibilityService = require('../../services/api-version-compa
  */
 module.exports = function setupApiApp() {
     debug('Parent API setup start');
+    console.log("StartUp")
     const apiApp = express('api');
 
     if (config.get('server:testmode')) {

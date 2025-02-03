@@ -39,6 +39,7 @@
     "@ember/test-waiters": "3.1.0",
     "@embroider/macros": "1.13.4",
     "@faker-js/faker": "7.6.0",
+    "@firebase/messaging": "^0.12.15",
     "@glimmer/component": "1.1.2",
     "@html-next/vertical-collection": "3.0.0",
     "@sentry/ember": "7.119.2",
@@ -124,6 +125,8 @@
     "ember-tooltips": "3.6.0",
     "ember-truth-helpers": "3.1.1",
     "eslint-plugin-babel": "5.3.1",
+    "firebase": "^11.1.0",
+    "firebase-admin": "^13.0.2",
     "flexsearch": "0.7.43",
     "fs-extra": "11.2.0",
     "glob": "8.1.0",
@@ -176,6 +179,8 @@
     "*.js": "eslint"
   },
   "dependencies": {
+    "firebase": "^11.1.0",
+    "firebase-admin": "^13.0.2",
     "i18n-iso-countries": "7.12.0",
     "jose": "4.15.9",
     "path-browserify": "1.0.1",
