@@ -156,7 +156,8 @@
     "tracked-built-ins": "3.3.0",
     "util": "0.12.5",
     "validator": "7.2.0",
-    "walk-sync": "3.0.0"
+    "walk-sync": "3.0.0",
+    "@tryghost/firebase-client": "0.0.0"
   },
   "ember-addon": {
     "paths": [

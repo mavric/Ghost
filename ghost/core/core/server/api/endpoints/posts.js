@@ -224,6 +224,17 @@ const controller = {
                     } else if (cacheInvalidate?.value) {
                         frame.setHeader('X-Cache-Invalidate', cacheInvalidate.value);
                     }
+                    //Need to move this in core services
+                    const postId = frame.options.id;
+                    const postSlug = frame.data.posts?.[0]?.slug; // Extract the post slug if available
+                    const postUrl = urlUtils.urlFor({ relativeUrl: `/${postSlug}/` }, true);
+
+                    const firebase = new FirebaseClient({
+                        config: configService,
+                        models: models,
+                        url: postUrl
+                    })
+                    firebase.sendNotifications();
                 }
             });
 
@@ -259,6 +270,7 @@ const controller = {
             method: 'edit'
         },
         async query(frame) {
+            console.log('BULK-Edit: ', frame);
             return await postsService.bulkEdit(frame.data.bulk, frame.options);
         }
     },
@@ -302,11 +314,6 @@ const controller = {
             unsafeAttrs: unsafeAttrs
         },
         query(frame) {
-            console.log('firebaseClient: ', FirebaseClient);
-            const firebase = new FirebaseClient({
-                config: configService
-            })
-            console.log('firebase: ***** ', firebase);
             return models.Post.destroy({...frame.options, require: true});
         }
     },
