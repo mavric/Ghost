@@ -32,9 +32,9 @@ function getPWAMetaTags(dataRoot) {
     const isUserSignedIn = dataRoot.member;
     const isAdmin = _.includes(dataRoot._locals.context, 'admin');
     let pwa = settingsCache.get('pwa')
-    // if (_.isEmpty(isUserSignedIn) || isAdmin || !pwa) {
-    //     return []
-    // }
+    if (_.isEmpty(isUserSignedIn) || isAdmin || !pwa) {
+        return []
+    }
 
     //manifest read
     // const manifestPath = path.join(__dirname, 'public', 'manifest.json');
