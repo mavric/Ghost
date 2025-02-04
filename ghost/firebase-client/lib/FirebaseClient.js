@@ -1,12 +1,10 @@
 const admin = require('firebase-admin');
 const logging = require('@tryghost/logging');
-
 module.exports = class FirebaseClient {
     #config;
     #app;
     #models;
     #url;
-
     constructor({ config, models, url }) {
         this.#config = config;
         this.#app = config.firebase.serviceAccount;
@@ -14,9 +12,11 @@ module.exports = class FirebaseClient {
         this.#url = url;
 
        try {
-            this.#app = admin.initializeApp({
+        if (!admin.apps.length) {
+            admin.initializeApp({
                 credential: admin.credential.cert(config.firebase.serviceAccount),
             });
+        }
        } catch (error) {
         console.log('error: ', error);
         
@@ -29,8 +29,8 @@ module.exports = class FirebaseClient {
             columns: ['fcm_token'],
             filter: 'fcm_token:-null' // Fetch only those with an FCM token
         });
-
             let tokens =  members.map(member => member.get('fcm_token')).filter(Boolean);
+            console.log("_______TOKEN_________",tokens)
             return tokens;
         } catch (error) {
             console.error('Error fetching FCM tokens:', error);
@@ -43,7 +43,6 @@ module.exports = class FirebaseClient {
             console.log('No tokens available to send notifications.');
             return;
         }
-
         const message = {
             // We can pass the title and body from the actual post the way we are passing URL
                 tokens: tokens,
@@ -58,6 +57,7 @@ module.exports = class FirebaseClient {
         };
         try {
             const response = await admin.messaging().sendEachForMulticast(message);
+            console.log("________RESPONSE____________",response)
         } catch (error) {
             console.error('Failed to send FCM message:', error);
         }
