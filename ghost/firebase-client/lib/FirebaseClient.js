@@ -4,106 +4,64 @@ const logging = require('@tryghost/logging');
 module.exports = class FirebaseClient {
     #config;
     #app;
+    #models;
+    #url;
 
-    constructor({ config }) {
+    constructor({ config, models, url }) {
         this.#config = config;
         this.#app = config.firebase.serviceAccount;
+        this.#models = models;
+        this.#url = url;
 
        try {
-            admin.initializeApp({
+            this.#app = admin.initializeApp({
                 credential: admin.credential.cert(config.firebase.serviceAccount),
-                // databaseURL: 'https://<your-database-name>.firebaseio.com'
             });
-            const message = {
-                token: 'eCqcpQPxw_PKW1PKr2SDzC:APA91bETH1QWbLXiRKUt6WLp73TKh3EPLgvIZVDBwf2LgG8W8WtzF0aoOiUuRVGjyS9h6Le22Z1v2qXAgiHKWGmDCnJSg5kCrVIFsd2BmssDYk7c3gW-tQY',
-                notification: {
-                    title: 'From Code',
-                    body: 'This is a test notification'
-                }
-            };
-            admin.messaging().send(message);
        } catch (error) {
         console.log('error: ', error);
         
        }
         
     }
+    async fetchTokens() {
+        try {
+           const members = await this.#models.Member.findAll({
+            columns: ['fcm_token'],
+            filter: 'fcm_token:-null' // Fetch only those with an FCM token
+        });
 
-    /**
-     * Initializes the Firebase Admin SDK with the provided configuration
-     */
-    initialize() {
-        if (!this.#config.get('firebase')) {
-            logging.warn('Firebase is not configured');
+            let tokens =  members.map(member => member.get('fcm_token')).filter(Boolean);
+            return tokens;
+        } catch (error) {
+            console.error('Error fetching FCM tokens:', error);
+            return [];
+        }
+    }
+    async sendNotifications() {
+        const tokens = await this.fetchTokens();
+        if (tokens.length === 0) {
+            console.log('No tokens available to send notifications.');
             return;
         }
 
-        const firebaseConfig = this.#config.get('firebase');
+        const message = {
+            // We can pass the title and body from the actual post the way we are passing URL
+                tokens: tokens,
+                notification: {
+                    title: 'From Code',
+                    body: 'This is a test Hello Codenotification',
+                   
+                },
+                data: {
+                    url: this.#url
+                }
+        };
         try {
-            if (!this.#app) {
-                this.#app = admin.initializeApp({
-                    credential: admin.credential.cert(firebaseConfig.serviceAccount),
-                    // databaseURL: firebaseConfig.databaseURL
-                });
-                logging.info('Firebase Admin SDK initialized successfully');
-            }
+            const response = await admin.messaging().sendEachForMulticast(message);
         } catch (error) {
-            logging.error('Failed to initialize Firebase Admin SDK', error);
-            throw error;
+            console.error('Failed to send FCM message:', error);
         }
     }
 
-    /**
-     * Returns the Firebase Admin app instance
-     * @returns {admin.app.App | null}
-     */
-    getInstance() {
-        if (!this.#app) {
-            this.initialize();
-        }
-        return this.#app;
-    }
 
-    /**
-     * Sends a message using Firebase Cloud Messaging
-     * @param {Object} message - The FCM message payload
-     */
-    async sendMessage(message) {
-        const instance = this.getInstance();
-        if (!instance) {
-            logging.warn('Firebase is not configured or initialized');
-            return null;
-        }
-
-        try {
-            const result = await instance.messaging().send(message);
-            logging.info('Message sent successfully:', result);
-            return result;
-        } catch (error) {
-            logging.error('Failed to send message via Firebase', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Verifies a Firebase ID token
-     * @param {string} idToken - The Firebase ID token to verify
-     * @returns {Object} - Decoded token information
-     */
-    async verifyIdToken(idToken) {
-        const instance = this.getInstance();
-        if (!instance) {
-            logging.warn('Firebase is not configured or initialized');
-            return null;
-        }
-
-        try {
-            const decodedToken = await instance.auth().verifyIdToken(idToken);
-            logging.info('Token verified successfully:', decodedToken);
-            return decodedToken;
-        } catch (error) {
-            logging.error('Failed to verify token:', error);
-            throw error;
-        }
-    }
 };

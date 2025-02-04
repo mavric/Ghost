@@ -114,7 +114,14 @@ export default class PublishOptions {
             label: 'Email only',
             display: 'Email',
             disabled: this.emailDisabled
-        }];
+        },
+        {
+            value: 'publish',
+            label: 'Publish and Notification',
+            display: 'Publish and Notification',
+            // disabled: true
+        }
+    ];
     }
 
     get selectedPublishTypeOption() {
@@ -248,7 +255,6 @@ export default class PublishOptions {
         // unlike Ember-based classes the services are not injected so can't be
         // used until after they are assigned above
         this.allNewsletters = this.store.peekAll('newsletter');
-
         this.setupTask.perform();
     }
 

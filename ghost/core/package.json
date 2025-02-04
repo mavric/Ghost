@@ -118,6 +118,7 @@
     "@tryghost/magic-link": "0.0.0",
     "@tryghost/mail-events": "0.0.0",
     "@tryghost/mailgun-client": "0.0.0",
+    "@tryghost/firebase-client": "0.0.0",
     "@tryghost/member-attribution": "0.0.0",
     "@tryghost/member-events": "0.0.0",
     "@tryghost/members-api": "0.0.0",
