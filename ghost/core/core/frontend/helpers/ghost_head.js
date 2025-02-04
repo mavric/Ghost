@@ -86,59 +86,92 @@ function getPWAMetaTags(dataRoot) {
 
     head.push(`<script src="main.js"></script>`)
 
-    // Add PWA installation modal script //uncomment this
-    // head.push(`<script>
-    //     document.addEventListener("DOMContentLoaded", function() {
-    //         // Create modal container
-    //         const modal = document.createElement("div");
-    //         modal.id = "pwa-modal";
-    //         modal.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;";
+    //Add PWA installation modal script //uncomment this
+    head.push(`<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        function isPWAInstalled() {
+            return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+        }
 
-    //         // Modal content
-    //         const modalContent = document.createElement("div");
-    //         modalContent.style.cssText = "background: white; padding: 20px; border-radius: 10px; text-align: center; width: 300px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);";
-    //         modalContent.innerHTML = \`
-    //             <h2>Install PWA</h2>
-    //             <p>Would you like to install this app as a PWA?</p>
-    //             <button id="install-pwa" style="margin: 10px; padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Install</button>
-    //             <button id="cancel-modal" style="margin: 10px; padding: 10px 20px; background: #CCCCCC; color: black; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
-    //         \`;
+        function isiOS() {
+            return /iPhone|iPad|iPod/.test(navigator.userAgent);
+        }
 
-    //         // Append modal content to modal
-    //         modal.appendChild(modalContent);
-    //         document.body.appendChild(modal);
+        function isAndroid() {
+            return /Android/.test(navigator.userAgent);
+        }
 
-    //         // Install PWA logic
-    //         let deferredPrompt;
-    //         window.addEventListener("beforeinstallprompt", (e) => {
-    //             // Prevent the mini-infobar from appearing
-    //             e.preventDefault();
-    //             deferredPrompt = e;
-    //         });
+        // Prevent showing if PWA is installed or dismissed before
+        if (isPWAInstalled() || localStorage.getItem("dismissedPWAInstall")) {
+            return;
+        }
 
-    //         const installButton = document.getElementById("install-pwa");
-    //         installButton.addEventListener("click", function() {
-    //             if (deferredPrompt) {
-    //                 deferredPrompt.prompt();
-    //                 deferredPrompt.userChoice.then((choiceResult) => {
-    //                     if (choiceResult.outcome === "accepted") {
-    //                         console.log("PWA installed");
-    //                     } else {
-    //                         console.log("PWA installation dismissed");
-    //                     }
-    //                     deferredPrompt = null;
-    //                 });
-    //             }
-    //             modal.style.display = "none";
-    //         });
+        // Create modal container
+        const modal = document.createElement("div");
+        modal.id = "pwa-modal";
+        modal.style.cssText = "position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 1000;";
 
-    //         // Cancel modal
-    //         const cancelButton = document.getElementById("cancel-modal");
-    //         cancelButton.addEventListener("click", function() {
-    //             modal.style.display = "none";
-    //         });
-    //     });
-    // </script>`);
+        // Modal content
+        const modalContent = document.createElement("div");
+        modalContent.style.cssText = "background: white; padding: 20px; border-radius: 10px; text-align: center; width: 300px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);";
+
+        if (isiOS()) {
+            // iOS Installation Instructions
+            modalContent.innerHTML = \`
+                <h2>Install PWA</h2>
+                <p>To install this app on your iPhone:</p>
+                <ol style="text-align: left;">
+                    <li>Tap on Share Icon.</li>
+                    <li>Scroll down and select Add to Home Screen</li>
+                    <li>Tap Add in the top-right corner.</li>
+                </ol>
+                <button id="cancel-modal" style="margin-top: 10px; padding: 10px 20px; background: #CCCCCC; color: black; border: none; border-radius: 5px; cursor: pointer;">Got it</button>
+            \`;
+        } else {
+            // Android Installation Prompt
+            modalContent.innerHTML = \`
+                <h2>Install PWA</h2>
+                <p>Would you like to install this app as a PWA?</p>
+                <button id="install-pwa" style="margin: 10px; padding: 10px 20px; background: #007BFF; color: white; border: none; border-radius: 5px; cursor: pointer;">Install</button>
+                <button id="cancel-modal" style="margin: 10px; padding: 10px 20px; background: #CCCCCC; color: black; border: none; border-radius: 5px; cursor: pointer;">Cancel</button>
+            \`;
+        }
+
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        let deferredPrompt;
+        window.addEventListener("beforeinstallprompt", (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+        });
+
+        if (!isiOS()) {
+            const installButton = document.getElementById("install-pwa");
+            installButton.addEventListener("click", function() {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    deferredPrompt.userChoice.then((choiceResult) => {
+                        if (choiceResult.outcome === "accepted") {
+                            console.log("PWA installed");
+                            localStorage.setItem("pwaInstalled", "true"); 
+                        } else {
+                            console.log("PWA installation dismissed");
+                        }
+                        deferredPrompt = null;
+                    });
+                }
+                modal.style.display = "none";
+            });
+        }
+
+        const cancelButton = document.getElementById("cancel-modal");
+        cancelButton.addEventListener("click", function() {
+            modal.style.display = "none";
+            localStorage.setItem("dismissedPWAInstall", "true"); // Store user preference
+        });
+    });
+</script>`);
     return head;
 }
 
