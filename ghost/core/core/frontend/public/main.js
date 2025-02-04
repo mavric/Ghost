@@ -64,43 +64,41 @@ fetch("/config.json")
         // Handle foreground messages
         // Handle foreground messages
         messaging.onMessage((payload) => {
-            console.log("Message received foreground. ", payload);
-            const { notification } = payload;
+            console.log("Message received in foreground: ", payload);
+            const { notification, data } = payload;
+            const url = data?.url
             const notificationTitle = notification.title;
             const notificationOptions = {
                 body: notification.body,
                 icon: notification.image,
             };
-
-            // Create a custom snackbar element
-            const snackbar = createSnackbar(
-                notificationTitle,
-                notificationOptions
-            );
-
+        
+            // Create a snackbar notification
+            const snackbar = createSnackbar(notificationTitle, notificationOptions, url);
+        
             // Append snackbar to body
             document.body.appendChild(snackbar);
-
+        
             // Trigger the slide-in effect
             setTimeout(() => {
                 snackbar.style.right = "20px";
-            }, 10); // Slight delay to ensure the transition is applied
-
+            }, 10);
+        
             // Automatically hide the snackbar after 5 seconds
             setTimeout(() => {
-                snackbar.style.right = "-350px"; // Slide out
+                snackbar.style.right = "-350px";
                 setTimeout(() => {
                     document.body.removeChild(snackbar);
-                }, 500); // Wait for the slide-out transition to complete
+                }, 500);
             }, 5000);
         });
-
-        // Create a custom snackbar element
-        function createSnackbar(title, options) {
+        
+        // Modify the snackbar to handle clicks
+        function createSnackbar(title, options, url) {
             const snackbar = document.createElement("div");
             snackbar.style.position = "fixed";
             snackbar.style.top = "20px";
-            snackbar.style.right = "-350px"; // Start off-screen
+            snackbar.style.right = "-350px";
             snackbar.style.width = "300px";
             snackbar.style.padding = "10px 20px";
             snackbar.style.backgroundColor = "#323232";
@@ -110,30 +108,31 @@ fetch("/config.json")
             snackbar.style.zIndex = "1000";
             snackbar.style.display = "flex";
             snackbar.style.alignItems = "center";
-            snackbar.style.transition = "right 0.5s ease"; // Add transition for sliding effect
-
+            snackbar.style.transition = "right 0.5s ease";
+            snackbar.style.cursor = "pointer"; // Make it clickable
+        
             // Add image
             const img = document.createElement("img");
             img.src = options.icon;
             img.style.width = "40px";
             img.style.height = "40px";
-            img.style.borderRadius = "50%"; // Make image rounded
+            img.style.borderRadius = "50%";
             img.style.marginRight = "10px";
             snackbar.appendChild(img);
-
+        
             // Add content container
             const content = document.createElement("div");
             content.style.flex = "1";
-
+        
             // Add title
             const titleElement = document.createElement("h4");
             titleElement.innerText = title;
             titleElement.style.margin = "0";
             titleElement.style.fontSize = "16px";
             content.appendChild(titleElement);
-
+        
             snackbar.appendChild(content);
-
+        
             // Add close button
             const closeButton = document.createElement("button");
             closeButton.innerText = "Close";
@@ -144,14 +143,22 @@ fetch("/config.json")
             closeButton.style.color = "#fff";
             closeButton.style.borderRadius = "4px";
             closeButton.style.cursor = "pointer";
-            closeButton.addEventListener("click", () => {
-                snackbar.style.right = "-350px"; // Slide out
+            closeButton.addEventListener("click", (event) => {
+                event.stopPropagation(); // Prevent redirection on close click
+                snackbar.style.right = "-350px";
                 setTimeout(() => {
                     document.body.removeChild(snackbar);
-                }, 500); // Wait for the slide-out transition to complete
+                }, 500);
             });
+        
             snackbar.appendChild(closeButton);
-
+        
+            // Add click event to redirect to URL
+            snackbar.addEventListener("click", () => {
+                window.location.href = url; // Opens URL in the same tab
+            });
+        
+        
             return snackbar;
         }
 
