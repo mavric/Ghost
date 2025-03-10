@@ -30,7 +30,6 @@ module.exports = class FirebaseClient {
             filter: 'fcm_token:-null' // Fetch only those with an FCM token
         });
             let tokens =  members.map(member => member.get('fcm_token')).filter(Boolean);
-            console.log("_______TOKEN_________",tokens)
             return tokens;
         } catch (error) {
             console.error('Error fetching FCM tokens:', error);
@@ -57,7 +56,7 @@ module.exports = class FirebaseClient {
         };
         try {
             const response = await admin.messaging().sendEachForMulticast(message);
-            console.log("________RESPONSE____________",response)
+            return response;
         } catch (error) {
             console.error('Failed to send FCM message:', error);
         }

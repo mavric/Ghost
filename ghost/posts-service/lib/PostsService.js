@@ -25,12 +25,13 @@ const messages = {
 };
 
 class PostsService {
-    constructor({urlUtils, models, isSet, stats, emailService, postsExporter}) {
+    constructor({urlUtils, models, isSet, stats, emailService, notificationService, postsExporter}) {
         this.urlUtils = urlUtils;
         this.models = models;
         this.isSet = isSet;
         this.stats = stats;
         this.emailService = emailService;
+        this.notificationService = notificationService;
         this.postsExporter = postsExporter;
     }
 
@@ -71,7 +72,9 @@ class PostsService {
         // Make sure the newsletter is matching an active newsletter
         // Note that this option is simply ignored if the post isn't published or scheduled
         if (frame.options.newsletter && frame.options.email_segment) {
+            console.log('frame.options.email_segment: ', frame.options.email_segment);
             if (frame.options.email_segment !== 'all') {
+                console.log("trueeee")
                 // check filter is valid
                 try {
                     await this.models.Member.findPage({filter: frame.options.email_segment, limit: 1});
@@ -103,7 +106,14 @@ class PostsService {
                     model.set('email', email);
                 }
             }
+          
         }
+            try {
+                this.notificationService.createNotification(frame.data.posts[0]);
+            } catch (error) {
+                console.log('error---POST SERVICE: ', error);
+                
+            }
 
         const dto = model.toJSON(frame.options);
 

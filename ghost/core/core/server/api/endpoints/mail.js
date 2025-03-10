@@ -16,6 +16,7 @@ _private.sendMail = (object) => {
     }
 
     return mailer.send(object.mail[0].message).catch((err) => {
+        console.log('object.mail: ', object.mail);
         if (mailer.state.usingDirect) {
             api.notifications.add(
                 {

@@ -1,8 +1,10 @@
 const urlUtils = require('../../../shared/url-utils');
 const models = require('../../models');
 const getPostServiceInstance = require('../../services/posts/posts-service');
+// const NotificationService = require('@tryghost/notification-service')
 const FirebaseClient  = require('@tryghost/firebase-client')
 const configService = require('../../../shared/config/env/config.development.json');
+const notificationService = require('../../services/notification-service');
 
 const allowedIncludes = [
     'tags',
@@ -190,7 +192,7 @@ const controller = {
             'id',
             'formats',
             'source',
-            'email_segment',
+            // 'email_segment',
             'newsletter',
             'force_rerender',
             'save_revision',
@@ -229,12 +231,21 @@ const controller = {
                     const postSlug = frame.data.posts?.[0]?.slug; // Extract the post slug if available
                     const postUrl = urlUtils.urlFor({ relativeUrl: `/${postSlug}/` }, true);
 
-                    const firebase = new FirebaseClient({
-                        config: configService,
-                        models: models,
-                        url: postUrl
-                    })
-                    firebase.sendNotifications();
+                    // const firebase = new FirebaseClient({
+                    //     config: configService,
+                    //     models: models,
+                    //     url: postUrl
+                    // })
+                    // firebase.sendNotifications();
+                    // try {
+                    //     console.log('notificationService: ', notificationService);
+                    //     let response = await notificationService.service.createNotification(frame);
+                    //     console.log('response: ', response);
+                    // } catch (error) {
+                    //     console.log('error: ', error);
+                        
+                    // }
+                    
                 }
             });
 

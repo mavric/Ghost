@@ -119,7 +119,7 @@ class BatchSendingService {
             name: 'batch-sending-service-job',
             job: this.emailJob.bind(this),
             data: {emailId: email.id},
-            offloaded: false
+            offloaded: false //inline progress, true will push the job to the background queue
         });
     }
 

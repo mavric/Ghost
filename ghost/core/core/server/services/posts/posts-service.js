@@ -12,6 +12,8 @@ const getPostServiceInstance = () => {
     const models = require('../../models');
     const PostStats = require('./stats/PostStats');
     const emailService = require('../email-service');
+    const notificationService = require('../notification-service');
+    // const notificationService = require()
     const settingsCache = require('../../../shared/settings-cache');
     const settingsHelpers = require('../settings-helpers');
 
@@ -39,6 +41,7 @@ const getPostServiceInstance = () => {
         isSet: flag => labs.isSet(flag), // don't use bind, that breaks test subbing of labs
         stats: postStats,
         emailService: emailService.service,
+        notificationService: notificationService.service,
         postsExporter
     });
 };
